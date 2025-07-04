@@ -6,7 +6,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     user = serializers.HyperlinkedRelatedField(read_only=True, many=False, view_name='user-detail')
     class Meta:
         model = Profile
-        fields = ['url', 'id', 'user', 'image']
+        fields = ['url', 'id', 'user', 'image','phone', 'present_address','permanent_address','city', 'state','zip_code']
 
 
 class UserSerializer(serializers.ModelSerializer):

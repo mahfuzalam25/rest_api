@@ -24,7 +24,10 @@ auth_api_urls = [
     path(r'', include('drf_social_oauth2.urls', namespace='drf')),
 ]
 if settings.DEBUG :
-    auth_api_urls.append(path(r'verify/',include('rest_framework.urls')))
+    auth_api_urls += [
+        path('verify/', include('rest_framework.urls')),
+        path('user/', include('users.urls')),  # ✅ Add this for /api/auth/user/me/
+    ]
 
 api_url_patterns = [
     path(r'auth/', include(auth_api_urls)),
