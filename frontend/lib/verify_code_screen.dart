@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'reset_password_screen.dart'; // Make sure this file exists
+import 'reset_password_screen.dart';
+import 'service/api.dart';
 
 class VerifyCodeScreen extends StatelessWidget {
   final String email;
@@ -60,37 +61,49 @@ class VerifyCodeScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final code = codeController.text.trim();
                     if (code.isEmpty) {
                       showDialog(
                         context: context,
-                        builder:
-                            (_) => AlertDialog(
-                              title: Text('Error'),
-                              content: Text(
-                                'Please enter the verification code',
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text('OK'),
-                                ),
-                              ],
+                        builder: (_) => AlertDialog(
+                          title: Text('Error'),
+                          content: Text('Please enter the verification code'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('OK'),
                             ),
+                          ],
+                        ),
                       );
                       return;
                     }
 
-                    // TODO: Normally you'd verify the code here with backend
-
-                    // Go to reset password screen
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ResetPasswordScreen(),
-                      ),
-                    );
+                    // 🔥 Call OTP verification API
+                    final result = await ApiService.verifyOTP(email, code);
+                    if (result['success']) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ResetPasswordScreen(email: email),
+                        ),
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text('Error'),
+                          content: Text(result['error']),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,

@@ -1,8 +1,50 @@
 import 'package:flutter/material.dart';
-import 'verify_code_screen.dart'; // We'll create this next
+import 'verify_code_screen.dart';
+import 'service/api.dart';
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
+  @override
+  _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController emailController = TextEditingController();
+  bool isLoading = false;
+
+  void sendResetCode() async {
+    final email = emailController.text.trim();
+    if (email.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Error'),
+          content: Text('Please enter your email'),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('OK'))],
+        ),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+    final response = await ApiService.requestPasswordReset(email);
+    setState(() => isLoading = false);
+
+    if (response['success']) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => VerifyCodeScreen(email: email)),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text('Error'),
+          content: Text(response['error'] ?? 'Failed to send code'),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text('OK'))],
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -11,11 +53,8 @@ class ForgotPasswordScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Color(0xFF2e3a59),
         elevation: 0,
-        title: Text(
-          'Forgot Password',
-          style: TextStyle(color: const Color.fromARGB(255, 234, 232, 232)),
-        ),
-      ), // <-- Added this missing closing parenthesis
+        title: Text('Forgot Password', style: TextStyle(color: Colors.white)),
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(24),
@@ -47,45 +86,15 @@ class ForgotPasswordScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    final email = emailController.text.trim();
-                    if (email.isEmpty) {
-                      // show error dialog
-                      showDialog(
-                        context: context,
-                        builder:
-                            (_) => AlertDialog(
-                              title: Text('Error'),
-                              content: Text('Please enter your email'),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text('OK'),
-                                ),
-                              ],
-                            ),
-                      );
-                      return;
-                    }
-                    // Navigate to code verification page
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => VerifyCodeScreen(email: email),
-                      ),
-                    );
-                  },
+                  onPressed: isLoading ? null : sendResetCode,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
                     padding: EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text(
-                    'Send Verification Code',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+                  child: isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text('Send Verification Code', style: TextStyle(color: Colors.white)),
                 ),
               ),
               Spacer(),

@@ -132,4 +132,60 @@ class ApiService {
       return {'success': false, 'error': data['info'] ?? data.toString()};
     }
   }
+
+  // ✅ SEND RESET OTP
+  static Future<Map<String, dynamic>> requestPasswordReset(String email) async {
+    final url = Uri.parse('$baseUrl/accounts/request-reset/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+    if (response.statusCode == 200) {
+      return {'success': true};
+    } else {
+      final data = jsonDecode(response.body);
+      return {'success': false, 'error': data['error'] ?? 'Reset failed'};
+    }
+  }
+
+  // ✅ VERIFY OTP
+  static Future<Map<String, dynamic>> verifyOTP(
+      String email, String code) async {
+    final url = Uri.parse('$baseUrl/accounts/verify-otp/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'code': code}),
+    );
+    if (response.statusCode == 200) {
+      return {'success': true};
+    } else {
+      final data = jsonDecode(response.body);
+      return {
+        'success': false,
+        'error': data['error'] ?? 'OTP verification failed'
+      };
+    }
+  }
+
+  // ✅ RESET PASSWORD
+  static Future<Map<String, dynamic>> resetPassword(
+      String email, String newPassword) async {
+    final url = Uri.parse('$baseUrl/accounts/reset-password/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'new_password': newPassword}),
+    );
+    if (response.statusCode == 200) {
+      return {'success': true};
+    } else {
+      final data = jsonDecode(response.body);
+      return {
+        'success': false,
+        'error': data['error'] ?? 'Password reset failed'
+      };
+    }
+  }
 }

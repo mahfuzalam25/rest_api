@@ -32,6 +32,7 @@ if settings.DEBUG :
 api_url_patterns = [
     path(r'auth/', include(auth_api_urls)),
     path('accounts/',include(users_api_router.router.urls)),
+    path('accounts/', include('users.urls')),
 ]
 
 urlpatterns = [

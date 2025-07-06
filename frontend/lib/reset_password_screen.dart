@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
+import 'service/api.dart';
 
 class ResetPasswordScreen extends StatelessWidget {
+  final String email;
+
+  ResetPasswordScreen({required this.email});
+
   final TextEditingController newPasswordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
@@ -12,10 +17,8 @@ class ResetPasswordScreen extends StatelessWidget {
       backgroundColor: const Color(0xFF2e3a59),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 40.0,
-            vertical: 200.0,
-          ),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 40.0, vertical: 200.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -66,12 +69,68 @@ class ResetPasswordScreen extends StatelessWidget {
                     ),
                     backgroundColor: Colors.redAccent,
                   ),
-                  onPressed: () {
-                    // You can add validation here
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => LoginScreen()),
-                    );
+                  onPressed: () async {
+                    final newPassword = newPasswordController.text.trim();
+                    final confirmPassword =
+                        confirmPasswordController.text.trim();
+
+                    if (newPassword.isEmpty || confirmPassword.isEmpty) {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text('Error'),
+                          content: Text('Both fields are required.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                      return;
+                    }
+
+                    if (newPassword != confirmPassword) {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text('Error'),
+                          content: Text('Passwords do not match.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                      return;
+                    }
+
+                    final result =
+                        await ApiService.resetPassword(email, newPassword);
+
+                    if (result['success']) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => LoginScreen()),
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (_) => AlertDialog(
+                          title: Text('Error'),
+                          content: Text(result['error']),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('OK'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
                   },
                   child: Text(
                     'Confirm & Login',

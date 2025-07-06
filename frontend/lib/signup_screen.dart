@@ -8,7 +8,7 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final TextEditingController usernameController = TextEditingController();
+  // final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -20,7 +20,7 @@ class _SignupScreenState extends State<SignupScreen> {
   String? _error;
 
   Future<void> _signup() async {
-    final username = usernameController.text.trim();
+    // final username = usernameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
@@ -45,7 +45,7 @@ class _SignupScreenState extends State<SignupScreen> {
       url,
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
-        "username": username,
+        // "username": username,
         "email": email,
         "first_name": firstName,
         "last_name": lastName,
@@ -120,8 +120,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: Text('Create an account for emergency use',
                       style: TextStyle(color: Colors.white70))),
               SizedBox(height: 32),
-              _buildTextField(controller: usernameController, hint: 'Username'),
-              SizedBox(height: 16),
+              // _buildTextField(controller: usernameController, hint: 'Username'),
+              // SizedBox(height: 16),
               _buildTextField(controller: emailController, hint: 'Email'),
               SizedBox(height: 16),
               _buildTextField(

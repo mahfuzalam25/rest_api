@@ -28,6 +28,15 @@ class UserSerializer(serializers.ModelSerializer):
             'password', 'old_password', 'profile'
         ]
 
+    def validate_email(self, value):
+        if self.instance is None:  # Signup
+            if User.objects.filter(email=value).exists():
+                raise serializers.ValidationError("Email is already in use.")
+        else:  # Update
+            if User.objects.filter(email=value).exclude(pk=self.instance.pk).exists():
+                raise serializers.ValidationError("Email is already in use.")
+        return value
+    
     def create(self, validated_data):
         password = validated_data.pop('password')
         user = User.objects.create(**validated_data)

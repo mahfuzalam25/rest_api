@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.utils.deconstruct import deconstructible
 from django.core.exceptions import ValidationError
 import os
+import uuid
+from datetime import timedelta
+from django.utils import timezone
 # Create your models here.
 
 def image_validator(value):
@@ -38,3 +41,15 @@ class Profile(models.Model):
     zip_code = models.CharField(max_length=20, blank=True, null=True)
     def __str__(self):
         return f'{self.user.username}\'s Profile'
+    
+class PasswordResetOTP(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+
+    def is_expired(self):
+        return timezone.now() > self.created_at + timedelta(minutes=10)
+
+    def __str__(self):
+        return f"{self.user.email} - {self.code}"
