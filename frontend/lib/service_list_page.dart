@@ -31,12 +31,12 @@ class _ServiceListPageState extends State<ServiceListPage> {
             .toList();
 
     return Scaffold(
-      backgroundColor: Color(0xFF2e3a59), // 🔵 Custom dark blue background
+      backgroundColor: Color(0xFF2e3a59),
       appBar: AppBar(
         elevation: 0,
         title: Text(widget.serviceType),
         centerTitle: true,
-        backgroundColor: Colors.redAccent, // 🔴 RedAccent AppBar
+        backgroundColor: Colors.redAccent,
       ),
       body: Column(
         children: [

@@ -8,10 +8,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = [
-            'url','bio', 'id', 'user', 'image', 'phone',
-            'present_address', 'permanent_address',
-            'city', 'state', 'zip_code'
-        ]
+            'url','bio', 'id', 'user', 'image', 'phone','present_address', 'permanent_address','city', 'state', 'zip_code']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -22,11 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = [
-            'url', 'id', 'username', 'email',
-            'first_name', 'last_name',
-            'password', 'old_password', 'profile'
-        ]
+        fields = [ 'url', 'id', 'username', 'email','first_name', 'last_name','password', 'old_password', 'profile']
 
     def validate_email(self, value):
         if self.instance is None:  # Signup
@@ -51,7 +44,6 @@ class UserSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         print('Request data:', request.data)
 
-        # Handle password update
         try:
             if 'password' in validated_data:
                 password = validated_data.pop('password')
@@ -65,27 +57,20 @@ class UserSerializer(serializers.ModelSerializer):
         except Exception as err:
             raise serializers.ValidationError({"info": str(err)})
 
-        # Update user fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        # Update profile fields using 'profile.' prefix keys
         if request and hasattr(instance, 'profile'):
             profile = instance.profile
 
-            # Fields list without prefix
-            profile_fields = [
-                'phone', 'present_address', 'permanent_address',
-                'city', 'state', 'zip_code', 'bio'
-            ]
+            profile_fields = ['phone', 'present_address', 'permanent_address','city', 'state', 'zip_code', 'bio']
 
             for field in profile_fields:
                 key = f'profile.{field}'
                 if key in request.data:
                     setattr(profile, field, request.data.get(key))
 
-            # Handle image upload
             if 'profile.image' in request.FILES:
                 profile.image = request.FILES['profile.image']
 

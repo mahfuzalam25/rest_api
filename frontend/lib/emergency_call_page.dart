@@ -7,37 +7,37 @@ class EmergencyCallPage extends StatelessWidget {
       'name': 'Police Station',
       'icon': Icons.local_police,
       'color': Color(0xFFc8e6c9),
-    }, // light green
+    },
     {
       'name': 'Ambulance',
       'icon': Icons.local_hospital,
       'color': Color(0xFFffe0b2),
-    }, // light orange
+    }, 
     {
       'name': 'Hospital',
       'icon': Icons.local_hospital_outlined,
       'color': Color(0xFFbbdefb),
-    }, // light blue
+    }, 
     {
       'name': 'Fire Service',
       'icon': Icons.fire_extinguisher,
       'color': Color(0xFFFFCDD2),
-    }, // light red
+    },
     {
       'name': 'Disaster Relief',
       'icon': Icons.warning,
       'color': Color(0xFFFFF9C4),
-    }, // light yellow
+    },
     {
       'name': 'Electric Emergency',
       'icon': Icons.electrical_services,
       'color': Color(0xFFD1C4E9),
-    }, // light purple
+    },
     {
       'name': 'Gas Leak Help',
       'icon': Icons.local_gas_station,
       'color': Color(0xFFB2EBF2),
-    }, // light cyan
+    },
   ];
 
   @override

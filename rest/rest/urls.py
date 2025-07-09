@@ -26,7 +26,7 @@ auth_api_urls = [
 if settings.DEBUG :
     auth_api_urls += [
         path('verify/', include('rest_framework.urls')),
-        path('user/', include('users.urls')),  # ✅ Add this for /api/auth/user/me/
+        path('user/', include('users.urls')),
     ]
 
 api_url_patterns = [

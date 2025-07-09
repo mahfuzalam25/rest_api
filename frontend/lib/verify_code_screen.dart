@@ -79,8 +79,7 @@ class VerifyCodeScreen extends StatelessWidget {
                       );
                       return;
                     }
-
-                    // 🔥 Call OTP verification API
+                    
                     final result = await ApiService.verifyOTP(email, code);
                     if (result['success']) {
                       Navigator.push(

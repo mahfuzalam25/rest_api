@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.utils.deconstruct import deconstructible
 from django.core.exceptions import ValidationError
 import os
-import uuid
 from datetime import timedelta
 from django.utils import timezone
 # Create your models here.

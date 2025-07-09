@@ -22,7 +22,6 @@ class PostDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Photo Banner
             Container(
               height: 220,
               width: double.infinity,
@@ -30,15 +29,13 @@ class PostDetailPage extends StatelessWidget {
                 image: DecorationImage(
                   image: AssetImage(
                     'assets/emergency_banner.jpg',
-                  ), // replace with actual image or network
+                  ),
                   fit: BoxFit.cover,
                 ),
               ),
             ),
 
             SizedBox(height: 12),
-
-            // Location Map Placeholder
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -65,7 +62,6 @@ class PostDetailPage extends StatelessWidget {
                 child: Center(
                   child: Icon(Icons.map, color: Colors.white54, size: 80),
                 ),
-                // TODO: Replace this with a Google Map widget or map image later
               ),
             ),
 
@@ -86,7 +82,6 @@ class PostDetailPage extends StatelessWidget {
 
             SizedBox(height: 12),
 
-            // Description Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
@@ -114,8 +109,7 @@ class PostDetailPage extends StatelessWidget {
             ),
 
             SizedBox(height: 20),
-
-            // Emergency Needs Section
+            
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(

@@ -4,7 +4,6 @@ class GuideDetailPage extends StatelessWidget {
   final String title;
   GuideDetailPage({required this.title});
 
-  // 💡 Easy English Descriptions for Each Guide
   final Map<String, List<String>> guideDetails = {
     'How to Give First Aid': [
       'First, try to stay calm. Panic can make the situation worse.',
@@ -51,7 +50,6 @@ class GuideDetailPage extends StatelessWidget {
       'Cover burns with a clean cloth, but don’t use ointment.',
       'Keep the person warm and wait for medical help.',
     ],
-    // You can add more guides here...
   };
 
   @override

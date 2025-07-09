@@ -1,10 +1,5 @@
 from django.urls import path
-from .views import (
-    CurrentUserView,
-    RequestPasswordReset,
-    VerifyOTP,
-    ResetPassword,
-)
+from .views import (CurrentUserView,RequestPasswordReset,VerifyOTP, ResetPassword,)
 
 urlpatterns = [
     path('me/', CurrentUserView.as_view(), name='current-user'),
