@@ -35,23 +35,49 @@ class ApiService {
   }
 
   static Future<Map<String, dynamic>> signup(
-      String username, String email, String password) async {
-    final url = Uri.parse('$baseUrl/accounts/users/');
+    String email,
+    String password,
+    String firstName,
+    String lastName,
+  ) async {
+    final url = Uri.parse('$baseUrl/accounts/signup/');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
-        'username': username,
         'email': email,
         'password': password,
+        'first_name': firstName,
+        'last_name': lastName,
       }),
     );
+    final data = json.decode(response.body);
 
-    if (response.statusCode == 201) {
-      return {'success': true};
+    if (response.statusCode == 200) {
+      return {'success': true, 'user_id': data['user_id']};
     } else {
-      final data = json.decode(response.body);
       return {'success': false, 'error': data['info'] ?? data.toString()};
+    }
+  }
+
+  static Future<Map<String, dynamic>> verifyOtp(
+    String email,
+    String code,
+  ) async {
+    final url = Uri.parse('$baseUrl/accounts/verify-signup/');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'email': email,
+        'code': code,
+      }),
+    );
+    final data = json.decode(response.body);
+    if (response.statusCode == 200){
+      return {'success': true, 'message': data['message']};
+    }else{
+      return {'success': false, 'error': data['error'] ?? 'Unknown error'};
     }
   }
 
@@ -133,7 +159,6 @@ class ApiService {
     }
   }
 
-  // ✅ SEND RESET OTP
   static Future<Map<String, dynamic>> requestPasswordReset(String email) async {
     final url = Uri.parse('$baseUrl/accounts/request-reset/');
     final response = await http.post(
@@ -149,7 +174,6 @@ class ApiService {
     }
   }
 
-  // ✅ VERIFY OTP
   static Future<Map<String, dynamic>> verifyOTP(
       String email, String code) async {
     final url = Uri.parse('$baseUrl/accounts/verify-otp/');
@@ -169,7 +193,6 @@ class ApiService {
     }
   }
 
-  // ✅ RESET PASSWORD
   static Future<Map<String, dynamic>> resetPassword(
       String email, String newPassword) async {
     final url = Uri.parse('$baseUrl/accounts/reset-password/');

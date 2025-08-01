@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/OtpVerificationScreen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -8,11 +9,9 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  // final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController firstNameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
 
@@ -20,7 +19,6 @@ class _SignupScreenState extends State<SignupScreen> {
   String? _error;
 
   Future<void> _signup() async {
-    // final username = usernameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
     final confirmPassword = confirmPasswordController.text.trim();
@@ -39,13 +37,12 @@ class _SignupScreenState extends State<SignupScreen> {
       _error = null;
     });
 
-    final url = Uri.parse('http://10.0.2.2:8000/api/accounts/users/');
+    final url = Uri.parse('http://10.0.2.2:8000/api/accounts/signup/');
 
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
       body: json.encode({
-        // "username": username,
         "email": email,
         "first_name": firstName,
         "last_name": lastName,
@@ -57,15 +54,20 @@ class _SignupScreenState extends State<SignupScreen> {
       _isLoading = false;
     });
 
-    if (response.statusCode == 201) {
+    if (response.statusCode == 201 || response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Account created successfully!")),
+        SnackBar(content: Text("OTP sent! Please verify your email.")),
       );
-      Navigator.pop(context); // Go back to login screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OtpVerificationScreen(email: email),
+        ),
+      );
     } else {
       final errorData = json.decode(response.body);
       setState(() {
-        _error = errorData.toString();
+        _error = errorData['error']?.toString() ?? errorData.toString();
       });
     }
   }
@@ -104,41 +106,28 @@ class _SignupScreenState extends State<SignupScreen> {
             children: [
               SizedBox(height: 32),
               Center(
-                child: Icon(Icons.local_hospital,
-                    size: 72, color: Colors.redAccent),
+                child: Icon(Icons.local_hospital, size: 72, color: Colors.redAccent),
               ),
               SizedBox(height: 16),
               Center(
                 child: Text('Register Account',
-                    style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white)),
+                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
               ),
               SizedBox(height: 16),
               Center(
-                  child: Text('Create an account for emergency use',
-                      style: TextStyle(color: Colors.white70))),
+                child: Text('Create an account for emergency use',
+                    style: TextStyle(color: Colors.white70)),
+              ),
               SizedBox(height: 32),
-              // _buildTextField(controller: usernameController, hint: 'Username'),
-              // SizedBox(height: 16),
               _buildTextField(controller: emailController, hint: 'Email'),
               SizedBox(height: 16),
-              _buildTextField(
-                  controller: firstNameController, hint: 'First Name'),
+              _buildTextField(controller: firstNameController, hint: 'First Name'),
               SizedBox(height: 16),
-              _buildTextField(
-                  controller: lastNameController, hint: 'Last Name'),
+              _buildTextField(controller: lastNameController, hint: 'Last Name'),
               SizedBox(height: 16),
-              _buildTextField(
-                  controller: passwordController,
-                  hint: 'Password',
-                  obscure: true),
+              _buildTextField(controller: passwordController, hint: 'Password', obscure: true),
               SizedBox(height: 16),
-              _buildTextField(
-                  controller: confirmPasswordController,
-                  hint: 'Confirm Password',
-                  obscure: true),
+              _buildTextField(controller: confirmPasswordController, hint: 'Confirm Password', obscure: true),
               SizedBox(height: 24),
               if (_error != null)
                 Text(_error!, style: TextStyle(color: Colors.redAccent)),
@@ -156,8 +145,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   child: _isLoading
                       ? CircularProgressIndicator(color: Colors.white)
-                      : Text('Create Account',
-                          style: TextStyle(color: Colors.white, fontSize: 16)),
+                      : Text('Create Account', style: TextStyle(color: Colors.white, fontSize: 16)),
                 ),
               ),
               SizedBox(height: 24),

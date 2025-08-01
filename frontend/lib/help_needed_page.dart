@@ -32,7 +32,7 @@ class HelpNeededPage extends StatelessWidget {
               icon: Icon(Icons.add),
               label: Text(
                 "Post Your Emergency",
-                style: TextStyle(color: Colors.white), // ✅ Text color
+                style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.redAccent,
