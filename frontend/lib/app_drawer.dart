@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:frontend/home_page.dart';
+import 'package:frontend/leaderboard_page.dart';
 import 'emergency_call_page.dart';
 import 'safety_guide_page.dart';
 import 'login_screen.dart';
@@ -70,6 +71,19 @@ class _AppDrawerState extends State<AppDrawer> {
             Navigator.push(context,
                 MaterialPageRoute(builder: (_) => const UserProfilePage()));
           }),
+          ListTile(
+            leading: const Icon(Icons.leaderboard, color: Colors.white),
+            title: const Text(
+              'Leaderboard',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => LeaderboardPage()),
+              );
+            },
+          ),
           const Divider(color: Colors.white24, indent: 16, endIndent: 16),
           _buildLabel("Settings"),
           _buildNavItem(Icons.settings, 'Settings', () {

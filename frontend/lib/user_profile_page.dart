@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:frontend/edit_profile_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'service/api.dart';
 
@@ -11,307 +13,300 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
-  bool isEditing = false;
-  bool isLoading = true;
-  String error = '';
+  String name = "Sourav Das Gupta";
+  String bio = "I am a volunteer";
+  int worksCompleted = 15;
+  int responses = 10;
+  String phoneNumber = "017XXXXXXXX";
 
-  String name = '';
-  String bio = '';
-  String phone = '';
-  String address1 = '';
-  String address2 = '';
-  String city = '';
-  String state = '';
-  String zip = '';
-  String imageUrl = '';
+  Map<String, String> location = {
+    "Home Address": "Sylhet Sadar",
+    "Office Address": "Leading University",
+    "City": "Sylhet",
+    "Town": "Ambarkhana",
+    "District": "Sylhet",
+    "Division": "Sylhet",
+  };
 
-  File? selectedImage;
-  String oldPassword = '';
-  String newPassword = '';
-  final _formKey = GlobalKey<FormState>();
+  Map<String, String> experience = {
+    "Title": "Emergency Volunteer",
+    "Date": "Sep, 2022 - Present",
+    "Duration": "2 years, 9 months",
+    "Company": "Local Emergency Team",
+    "Description": "Helped in emergency situations.",
+    "Location": "Sylhet, Bangladesh",
+  };
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUserProfile();
-  }
+  Map<String, String> education = {
+    "Institution": "Leading University",
+    "Date": "2021 - 2025",
+    "Duration": "4 years",
+    "Field": "CSE",
+    "Location": "Bangladesh",
+  };
 
-  Future<void> _loadUserProfile() async {
-    setState(() {
-      isLoading = true;
-      error = '';
-    });
-
-    final profileData = await ApiService.getUserProfile();
-    if (profileData == null) {
-      setState(() {
-        error = 'Failed to load profile data.';
-        isLoading = false;
-      });
-      return;
-    }
-
-    final profile = profileData['profile'] ?? {};
-
-    setState(() {
-      name = profileData['username'] ?? '';
-      bio = profile['bio'] ?? '';
-      phone = profile['phone'] ?? '';
-      address1 = profile['present_address'] ?? '';
-      address2 = profile['permanent_address'] ?? '';
-      city = profile['city'] ?? '';
-      state = profile['state'] ?? '';
-      zip = profile['zip_code'] ?? '';
-      imageUrl = profile['image'] ?? '';
-      isLoading = false;
-    });
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      setState(() {
-        selectedImage = File(picked.path);
-      });
-    }
-  }
-
-  Future<void> _saveProfile() async {
-    final result = await ApiService.updateUserProfile(
-      phone: phone,
-      address1: address1,
-      address2: address2,
-      city: city,
-      state: state,
-      zip: zip,
-      bio: bio,
-      imageFile: selectedImage,
-      oldPassword: oldPassword.isNotEmpty ? oldPassword : null,
-      newPassword: newPassword.isNotEmpty ? newPassword : null,
-    );
-
-    if (result['success']) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully')),
-      );
-      await _loadUserProfile();
-      setState(() {
-        oldPassword = '';
-        newPassword = '';
-        selectedImage = null;
-        isEditing = false;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Update failed: ${result['error']}')),
-      );
-    }
-  }
-
-  Widget _buildField(String label, String value, Function(String) onChanged) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: isEditing
-          ? TextFormField(
-              initialValue: value,
-              onChanged: onChanged,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                labelText: label,
-                labelStyle: const TextStyle(color: Colors.white70),
-                filled: true,
-                fillColor: const Color(0xFF3d4d6f),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              validator: (val) {
-                if (val == null || val.isEmpty) {
-                  return '$label cannot be empty';
-                }
-                return null;
-              },
-            )
-          : _buildDisplay(label, value),
-    );
-  }
-
-  Widget _buildPasswordField(String label, Function(String) onChanged) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextFormField(
-        obscureText: true,
-        onChanged: onChanged,
-        style: const TextStyle(color: Colors.white),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.white70),
-          filled: true,
-          fillColor: const Color(0xFF3d4d6f),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-        ),
-        validator: (val) {
-          if (label == "New Password" &&
-              val != null &&
-              val.isNotEmpty &&
-              oldPassword.isEmpty) {
-            return 'Old Password is required to set a new password';
-          }
-          return null;
-        },
-      ),
-    );
-  }
-
-  Widget _buildDisplay(String label, String value) {
-    return Card(
-      color: const Color(0xFF3d4d6f),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        title: Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.white70,
-          ),
-        ),
-        subtitle: Text(value, style: const TextStyle(color: Colors.white)),
-      ),
-    );
-  }
+  Map<String, String> qualification = {
+    "Title": "First Aid Certified",
+    "Year": "2024",
+    "Description": "Trained by Red Cross for first aid.",
+  };
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (error.isNotEmpty) {
-      return Scaffold(
-        body: Center(child: Text(error)),
-      );
-    }
-
     return Scaffold(
-      backgroundColor: const Color(0xFF2e3a59),
+      backgroundColor: const Color(0xFF0D141B),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFE53935),
+        title: const Text("User Profile"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit),
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => EditProfilePage(
+                    name: name,
+                    bio: bio,
+                    worksCompleted: worksCompleted,
+                    responses: responses,
+                    location: location["Home Address"] ?? "",
+                    experience: experience,
+                    education: education,
+                    qualification: qualification,
+                  ),
+                ),
+              );
+
+              if (result != null) {
+                setState(() {
+                  name = result["name"];
+                  bio = result["bio"];
+                  location = Map<String, String>.from(result["location"]);
+                  experience = Map<String, String>.from(result["experience"]);
+                  qualification = Map<String, String>.from(
+                    result["qualification"],
+                  );
+                });
+              }
+            },
+          ),
+        ],
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.redAccent, Color(0xFF2e3a59)],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+            _buildHeader(),
+            _buildProfileStats(),
+            _buildSection("Location", location),
+            _buildSection("Experience", experience),
+            _buildSection("Education", education),
+            _buildSection("Qualifications", qualification),
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.only(top: 20, bottom: 30),
+      width: double.infinity,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFFE53935), Color(0xFFB71C1C)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
+      ),
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(5),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.redAccent.withOpacity(0.7),
+                  blurRadius: 20,
+                  spreadRadius: 2,
                 ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(40),
-                  bottomRight: Radius.circular(40),
-                ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: isEditing ? _pickImage : null,
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundImage: selectedImage != null
-                              ? FileImage(selectedImage!)
-                              : (imageUrl.isNotEmpty
-                                      ? NetworkImage(imageUrl)
-                                      : const AssetImage('assets/avatar.png'))
-                                  as ImageProvider,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      _buildField("Bio", bio, (val) => bio = val),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          if (isEditing) {
-                            if (_formKey.currentState!.validate()) {
-                              await _saveProfile();
-                            }
-                          }
-                          setState(() => isEditing = !isEditing);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.redAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                        ),
-                        icon: Icon(isEditing ? Icons.save : Icons.edit),
-                        label: Text(isEditing ? "Save" : "Edit"),
-                      ),
-                    ],
-                  ),
-                ],
+              ],
+            ),
+            child: const CircleAvatar(
+              radius: 45,
+              backgroundImage: NetworkImage(
+                "https://randomuser.me/api/portraits/men/32.jpg",
               ),
             ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    _buildField("Phone", phone, (val) => phone = val),
-                    _buildField(
-                        "Present Address", address1, (val) => address1 = val),
-                    _buildField(
-                        "Permanent Address", address2, (val) => address2 = val),
-                    _buildField("City", city, (val) => city = val),
-                    _buildField("State", state, (val) => state = val),
-                    _buildField("Zip Code", zip, (val) => zip = val),
-                    if (isEditing) ...[
-                      _buildPasswordField(
-                          "Old Password", (val) => oldPassword = val),
-                      _buildPasswordField(
-                          "New Password", (val) => newPassword = val),
-                    ] else
-                      _buildDisplay("Password", '••••••••'),
-                    const SizedBox(height: 40),
-                  ],
+          ),
+          const SizedBox(height: 15),
+          Text(
+            name,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            bio,
+            style: const TextStyle(color: Colors.white70, fontSize: 16),
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.call, size: 18),
+            label: const Text("Call Me"),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: phoneNumber));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Number copied to clipboard"),
+                  duration: Duration(seconds: 2),
                 ),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.red[700],
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileStats() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _infoCard(
+                Icons.task_alt,
+                "Works",
+                "$worksCompleted",
+                Colors.greenAccent,
+              ),
+              const SizedBox(width: 10),
+              _infoCard(
+                Icons.warning_amber_rounded,
+                "Responses",
+                "$responses",
+                Colors.redAccent,
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoCard(IconData icon, String title, String value, Color color) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.symmetric(horizontal: 5),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: Colors.white10),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 30),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              title,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSection(String title, Map<String, String> data) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.redAccent.withOpacity(0.05),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: data.entries
+                  .map(
+                    (e) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        "${e.key}: ${e.value}",
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ),
+        ],
       ),
     );
   }
