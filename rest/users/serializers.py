@@ -1,25 +1,80 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Profile
+from .models import Profile, Location, Experience, Education, Certification
 
+
+# -------------------- Nested Serializers --------------------
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = ['home_address', 'office_address', 'city', 'district', 'division', 'zip_code']
+
+
+class ExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Experience
+        fields = ['experience_title', 'duration', 'organization_name', 'organization_address', 'description']
+
+
+class EducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = ['institution_name', 'duration', 'department_name', 'institution_address']
+
+
+class CertificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certification
+        fields = ['certificate_title', 'year', 'description']
+
+
+# -------------------- Profile Serializer --------------------
 class ProfileSerializer(serializers.ModelSerializer):
-    user = serializers.HyperlinkedRelatedField(read_only=True, many=False, view_name='user-detail')
+    user = serializers.HyperlinkedRelatedField(read_only=True, view_name='user-detail')
+    location = LocationSerializer()
+    experience = ExperienceSerializer()
+    education = EducationSerializer()
+    certification = CertificationSerializer()
 
     class Meta:
         model = Profile
         fields = [
-            'url','bio', 'id', 'user', 'image', 'phone','present_address', 'permanent_address','city', 'state', 'zip_code']
+            'url', 'id', 'user', 'bio', 'blood_group', 'image', 'phone',
+            'location', 'experience', 'education', 'certification',
+        ]
+
+    def update(self, instance, validated_data):
+        nested_serializers = {
+            'location': LocationSerializer,
+            'experience': ExperienceSerializer,
+            'education': EducationSerializer,
+            'certification': CertificationSerializer,
+        }
+
+        # Handle nested model updates
+        for field, serializer_class in nested_serializers.items():
+            nested_data = validated_data.pop(field, None)
+            if nested_data:
+                nested_instance = getattr(instance, field)
+                serializer = serializer_class(nested_instance, data=nested_data, partial=True)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+
+        # Update remaining profile fields
+        return super().update(instance, validated_data)
 
 
+# -------------------- User Serializer --------------------
 class UserSerializer(serializers.ModelSerializer):
-    profile = ProfileSerializer(read_only=True)
+    profile = ProfileSerializer(required=False)  # Now writable
     old_password = serializers.CharField(write_only=True, required=False)
     password = serializers.CharField(write_only=True, required=False)
     username = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = [ 'url', 'id', 'username', 'email','first_name', 'last_name','password', 'old_password', 'profile']
+        fields = ['url', 'id', 'username', 'email', 'first_name', 'last_name',
+                  'password', 'old_password', 'profile']
 
     def validate_email(self, value):
         if self.instance is None:  # Signup
@@ -29,56 +84,46 @@ class UserSerializer(serializers.ModelSerializer):
             if User.objects.filter(email=value).exclude(pk=self.instance.pk).exists():
                 raise serializers.ValidationError("Email is already in use.")
         return value
-    
+
     def create(self, validated_data):
         password = validated_data.pop('password')
+        profile_data = validated_data.pop('profile', None)
         user = User.objects.create(**validated_data)
         user.set_password(password)
         user.save()
+
+        if profile_data:
+            Profile.objects.update_or_create(user=user, defaults=profile_data)
+
         return user
 
     def update(self, instance, validated_data):
-        print('Update called for user:', instance.username)
-        print('Validated data:', validated_data)
-
         request = self.context.get('request')
-        print('Request data:', request.data)
 
-        try:
-            if 'password' in validated_data:
-                password = validated_data.pop('password')
-                old_password = validated_data.pop('old_password', None)
-                if old_password and instance.check_password(old_password):
-                    instance.set_password(password)
-                elif old_password is None:
-                    raise Exception("Old password is required.")
-                else:
-                    raise Exception("Old password is incorrect.")
-        except Exception as err:
-            raise serializers.ValidationError({"info": str(err)})
+        # Handle password change
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            old_password = validated_data.pop('old_password', None)
+            if old_password and instance.check_password(old_password):
+                instance.set_password(password)
+            elif old_password is None:
+                raise serializers.ValidationError({"info": "Old password is required."})
+            else:
+                raise serializers.ValidationError({"info": "Old password is incorrect."})
 
+        # Handle nested profile update
+        profile_data = validated_data.pop('profile', None)
+        if profile_data and hasattr(instance, 'profile'):
+            profile_serializer = ProfileSerializer(instance.profile, data=profile_data, partial=True)
+            profile_serializer.is_valid(raise_exception=True)
+            profile_serializer.save()
+
+        # Update user fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
 
-        if request and hasattr(instance, 'profile'):
-            profile = instance.profile
-
-            profile_fields = ['phone', 'present_address', 'permanent_address','city', 'state', 'zip_code', 'bio']
-
-            for field in profile_fields:
-                key = f'profile.{field}'
-                if key in request.data:
-                    setattr(profile, field, request.data.get(key))
-
-            if 'profile.image' in request.FILES:
-                profile.image = request.FILES['profile.image']
-
-            profile.save()
-
         return instance
-
-
 
     def validate(self, data):
         method = self.context['request'].method

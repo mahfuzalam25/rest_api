@@ -74,9 +74,9 @@ class ApiService {
       }),
     );
     final data = json.decode(response.body);
-    if (response.statusCode == 200){
+    if (response.statusCode == 200) {
       return {'success': true, 'message': data['message']};
-    }else{
+    } else {
       return {'success': false, 'error': data['error'] ?? 'Unknown error'};
     }
   }
@@ -114,11 +114,27 @@ class ApiService {
     required String address2,
     required String city,
     required String state,
+    required String division,
     required String zip,
+    required String experience_title,
+    required String experience_duration,
+    required String experience_company,
+    required String experience_organization_address,
+    required String experience_description,
+    required String education_institution,
+    required String education_duration,
+    required String education_department_name,
+    required String education_institution_address,
+    required String certification_title,
+    required String certification_year,
+    required String certification_description,
     required String bio,
     File? imageFile,
     String? oldPassword,
     String? newPassword,
+    String? bloodGroup,
+    Map<String, String>? experience,
+    Map<String, String>? certification,
   }) async {
     final token = await getAccessToken();
     if (token == null) {
@@ -129,12 +145,31 @@ class ApiService {
     final request = http.MultipartRequest('PATCH', url)
       ..headers['Authorization'] = 'Bearer $token'
       ..fields['profile.phone'] = phone
-      ..fields['profile.present_address'] = address1
-      ..fields['profile.permanent_address'] = address2
-      ..fields['profile.city'] = city
-      ..fields['profile.state'] = state
-      ..fields['profile.zip_code'] = zip
+      ..fields['profile.location.home_address'] = address1
+      ..fields['profile.location.office_address'] = address2
+      ..fields['profile.location.city'] = city
+      ..fields['profile.location.district'] = state
+      ..fields['profile.location.division'] = division
+      ..fields['profile.location.zip_code'] = zip
+      ..fields['profile.experience.experience_title'] = experience_title
+      ..fields['profile.experience.duration'] = experience_duration
+      ..fields['profile.experience.organization_name'] = experience_company
+      ..fields['profile.experience.organization_address'] =
+          experience_organization_address
+      ..fields['profile.experience.description'] = experience_description
+      ..fields['profile.education.institution_name'] = education_institution
+      ..fields['profile.education.duration'] = education_duration
+      ..fields['profile.education.department_name'] = education_department_name
+      ..fields['profile.education.institution_address'] =
+          education_institution_address
+      ..fields['profile.certification.certificate_title'] = certification_title
+      ..fields['profile.certification.year'] = certification_year
+      ..fields['profile.certification.description'] = certification_description
       ..fields['profile.bio'] = bio;
+
+    if (bloodGroup != null && bloodGroup.isNotEmpty) {
+      request.fields['profile.blood_group'] = bloodGroup;
+    }
 
     if (oldPassword != null && oldPassword.isNotEmpty) {
       request.fields['old_password'] = oldPassword;
@@ -144,8 +179,7 @@ class ApiService {
     }
     if (imageFile != null) {
       request.files.add(
-        await http.MultipartFile.fromPath('profile.image', imageFile.path),
-      );
+          await http.MultipartFile.fromPath('profile.image', imageFile.path));
     }
 
     final streamedResponse = await request.send();
@@ -154,8 +188,12 @@ class ApiService {
     if (response.statusCode == 200) {
       return {'success': true};
     } else {
-      final data = json.decode(response.body);
-      return {'success': false, 'error': data['info'] ?? data.toString()};
+      try {
+        final data = json.decode(response.body);
+        return {'success': false, 'error': data['info'] ?? data.toString()};
+      } catch (e) {
+        return {'success': false, 'error': 'Unexpected error'};
+      }
     }
   }
 
@@ -210,5 +248,54 @@ class ApiService {
         'error': data['error'] ?? 'Password reset failed'
       };
     }
+  }
+
+  static Future<List<SafetyGuide>> getSafetyGuides() async {
+    final url = Uri.parse('$baseUrl/safety/guides/');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final List data = json.decode(response.body);
+      return data.map((item) => SafetyGuide.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load safety guides');
+    }
+  }
+}
+
+class SafetyAdvice {
+  final int id;
+  final String text;
+
+  SafetyAdvice({required this.id, required this.text});
+
+  factory SafetyAdvice.fromJson(Map<String, dynamic> json) {
+    return SafetyAdvice(
+      id: json['id'],
+      text: json['text'] ?? '',
+    );
+  }
+}
+
+class SafetyGuide {
+  final int id;
+  final String icon;
+  final String title;
+  final List<SafetyAdvice> advices;
+
+  SafetyGuide({
+    required this.id,
+    required this.icon,
+    required this.title,
+    required this.advices,
+  });
+
+  factory SafetyGuide.fromJson(Map<String, dynamic> json) {
+    var advicesJson = json['advices'] as List<dynamic>? ?? [];
+    return SafetyGuide(
+      id: json['id'],
+      icon: json['icon'] ?? '',
+      title: json['title'] ?? '',
+      advices: advicesJson.map((a) => SafetyAdvice.fromJson(a)).toList(),
+    );
   }
 }

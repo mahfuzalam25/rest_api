@@ -1,87 +1,121 @@
 import 'package:flutter/material.dart';
 import 'guide_detail_page.dart';
+import 'service/api.dart';
 
-class SafetyGuidePage extends StatelessWidget {
-  final List<Map<String, dynamic>> tips = [
-    {'title': 'How to Give First Aid', 'icon': Icons.healing},
-    {
-      'title': 'How to Control High Blood Pressure',
-      'icon': Icons.monitor_heart,
-    },
-    {
-      'title': 'How to Stay Safe During Earthquake',
-      'icon': Icons.emoji_objects,
-    },
-    {'title': 'Fire Safety Tips at Home', 'icon': Icons.local_fire_department},
-    {
-      'title': 'Electric Shock First Response',
-      'icon': Icons.electrical_services,
-    },
-    {'title': 'Basic CPR Instructions', 'icon': Icons.volunteer_activism},
-    {'title': 'Road Accident Emergency Steps', 'icon': Icons.car_crash},
-    {'title': 'Flood Preparedness and Safety', 'icon': Icons.water_damage},
-    {'title': 'Handling Cuts and Bleeding', 'icon': Icons.cut},
-    {'title': 'Burn Recovery Measures', 'icon': Icons.whatshot},
-  ];
+class SafetyGuidePage extends StatefulWidget {
+  const SafetyGuidePage({Key? key}) : super(key: key);
+
+  @override
+  _SafetyGuidePageState createState() => _SafetyGuidePageState();
+}
+
+class _SafetyGuidePageState extends State<SafetyGuidePage> {
+  late Future<List<SafetyGuide>> _futureGuides;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureGuides = ApiService.getSafetyGuides();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF2e3a59),
+      backgroundColor: const Color(0xFF2e3a59),
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
         elevation: 0,
-        title: Text('Safety Guide'),
+        title: const Text('Safety Guide'),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: tips.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 14),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (_) => GuideDetailPage(title: tips[index]['title']),
+      body: FutureBuilder<List<SafetyGuide>>(
+        future: _futureGuides,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error loading guides:\n${snapshot.error}',
+                style: const TextStyle(color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+            );
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(
+              child: Text(
+                'No safety guides found',
+                style: TextStyle(color: Colors.white),
+              ),
+            );
+          } else {
+            final guides = snapshot.data!;
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: guides.length,
+              itemBuilder: (context, index) {
+                final guide = guides[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => GuideDetailPage(
+                            title: guide.title,
+                            advices: guide.advices.map((e) => e.text).toList(),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(16),
+                        border:
+                            Border.all(color: Colors.white.withOpacity(0.2)),
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.redAccent.withOpacity(0.2),
+                          child: guide.icon.isNotEmpty
+                              ? ClipOval(
+                                  child: Image.network(
+                                    guide.icon,
+                                    width: 24,
+                                    height: 24,
+                                    errorBuilder: (_, __, ___) => const Icon(
+                                        Icons.info,
+                                        color: Colors.redAccent),
+                                  ),
+                                )
+                              : const Icon(Icons.info, color: Colors.redAccent),
+                        ),
+                        title: Text(
+                          guide.title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          color: Colors.white70,
+                          size: 18,
+                        ),
+                      ),
+                    ),
                   ),
                 );
               },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.white.withOpacity(0.2)),
-                ),
-                child: ListTile(
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.redAccent.withOpacity(0.2),
-                    child: Icon(tips[index]['icon'], color: Colors.redAccent),
-                  ),
-                  title: Text(
-                    tips[index]['title'],
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                  trailing: Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: Colors.white70,
-                    size: 18,
-                  ),
-                ),
-              ),
-            ),
-          );
+            );
+          }
         },
       ),
     );

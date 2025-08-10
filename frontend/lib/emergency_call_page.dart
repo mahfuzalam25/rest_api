@@ -12,12 +12,12 @@ class EmergencyCallPage extends StatelessWidget {
       'name': 'Ambulance',
       'icon': Icons.local_hospital,
       'color': Color(0xFFffe0b2),
-    }, 
+    },
     {
       'name': 'Hospital',
       'icon': Icons.local_hospital_outlined,
       'color': Color(0xFFbbdefb),
-    }, 
+    },
     {
       'name': 'Fire Service',
       'icon': Icons.fire_extinguisher,
@@ -66,10 +66,9 @@ class EmergencyCallPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (_) => ServiceListPage(
-                          serviceType: item['name'] as String,
-                        ),
+                    builder: (_) => ServiceListPage(
+                      serviceType: item['name'] as String,
+                    ),
                   ),
                 );
               },

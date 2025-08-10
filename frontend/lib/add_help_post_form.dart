@@ -17,17 +17,18 @@ class _AddHelpPostFormState extends State<AddHelpPostForm> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Post Emergency Help"),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Color(0xFFE53935), //change this color
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context), // 🔙 Back navigation
+          onPressed: () => Navigator.pop(context),
         ),
       ),
-      backgroundColor: Color(0xFFf8f9fa),
+      backgroundColor: const Color(0xFFE7E5E5), //change this color
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Card(
           elevation: 4,
+          color: Colors.white, //change this color
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -38,13 +39,11 @@ class _AddHelpPostFormState extends State<AddHelpPostForm> {
                 DropdownButtonFormField<String>(
                   value: selectedLocation,
                   hint: Text("Select Location"),
-                  items:
-                      locations
-                          .map(
-                            (loc) =>
-                                DropdownMenuItem(value: loc, child: Text(loc)),
-                          )
-                          .toList(),
+                  items: locations
+                      .map(
+                        (loc) => DropdownMenuItem(value: loc, child: Text(loc)),
+                      )
+                      .toList(),
                   onChanged: (value) {
                     setState(() {
                       selectedLocation = value;
@@ -55,7 +54,6 @@ class _AddHelpPostFormState extends State<AddHelpPostForm> {
                     filled: true,
                   ),
                 ),
-
                 SizedBox(height: 16),
                 TextField(
                   controller: descriptionController,
@@ -66,7 +64,6 @@ class _AddHelpPostFormState extends State<AddHelpPostForm> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-
                 SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
@@ -79,17 +76,15 @@ class _AddHelpPostFormState extends State<AddHelpPostForm> {
                     decoration: BoxDecoration(
                       border: Border.all(),
                       borderRadius: BorderRadius.circular(8),
-                      color: Colors.grey[200],
+                      color: Colors.grey[200], //change this color
                     ),
                     child: Center(
-                      child:
-                          selectedImagePath == null
-                              ? Text("Tap to add image")
-                              : Text("Image Selected: $selectedImagePath"),
+                      child: selectedImagePath == null
+                          ? Text("Tap to add image")
+                          : Text("Image Selected: $selectedImagePath"),
                     ),
                   ),
                 ),
-
                 SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -101,9 +96,12 @@ class _AddHelpPostFormState extends State<AddHelpPostForm> {
                       Navigator.pop(context); // Optionally go back
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: Color(0xFFE53935), //change this color
                     ),
-                    child: Text("Post", style: TextStyle(color: Colors.white)),
+                    child: Text(
+                      "Post",
+                      style: TextStyle(color: Colors.white),
+                    ), //change this color
                   ),
                 ),
               ],

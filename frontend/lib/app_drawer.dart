@@ -54,7 +54,6 @@ class _AppDrawerState extends State<AppDrawer> {
               backgroundImage: NetworkImage(imageUrl),
             ),
           ),
-          _buildLabel("Navigation"),
           _buildNavItem(Icons.help_outline, 'Help Needed', () {
             Navigator.push(
                 context, MaterialPageRoute(builder: (_) => HomePage()));

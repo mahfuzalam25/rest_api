@@ -25,19 +25,65 @@ class GenerateProfileImagePath(object):
         path = f'media/accounts/{instance.user.id}/images/'
         name = f'profile_image.{ext}'
         return os.path.join(path,name)
-    
+
+class Location(models.Model):
+    home_address = models.CharField(max_length=255, blank=True, null=True)
+    office_address = models.CharField(max_length=255, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    district = models.CharField(max_length=100, blank=True, null=True)
+    division = models.CharField(max_length=100, blank=True, null=True)
+    zip_code = models.CharField(max_length=20, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.city or 'Unknown'}, {self.district or ''}, {self.division or ''}"
+
+
+
+class Experience(models.Model):
+    experience_title = models.CharField(max_length=255, blank=True, null=True)
+    duration = models.CharField(max_length=100, blank=True, null=True)  # e.g. "Sep 2022 - Present"
+    organization_name = models.CharField(max_length=255, blank=True, null=True)
+    organization_address = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.experience_title or 'No title'
+
+
+
+class Education(models.Model):
+    institution_name = models.CharField(max_length=255, blank=True, null=True)
+    duration = models.CharField(max_length=100, blank=True, null=True)  # e.g. "Sep 2022 - Present"
+    department_name = models.CharField(max_length=255, blank=True, null=True)
+    institution_address = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.institution_name or 'No institution'
+
+
+
+class Certification(models.Model):
+    certificate_title = models.CharField(max_length=255, blank=True, null=True)
+    year = models.CharField(max_length=10, blank=True, null=True)  # e.g. "2023"
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.certificate_title or 'No certificate'
+
+
+
 user_profile_image_path = GenerateProfileImagePath()
 class Profile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     image = models.FileField(upload_to='profile/', validators=[image_validator], null=True, blank=True)
     bio = models.CharField(max_length=150, blank=True)
-    # email = models.CharField(max_length=20, blank=True, null=True)
+    blood_group = models.CharField(max_length=20, blank=True, null=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
-    present_address = models.CharField(max_length=255, blank=True, null=True)
-    permanent_address = models.CharField(max_length=255, blank=True, null=True)
-    city = models.CharField(max_length=100, blank=True, null=True)
-    state = models.CharField(max_length=100, blank=True, null=True)
-    zip_code = models.CharField(max_length=20, blank=True, null=True)
+
+    location = models.OneToOneField(Location, on_delete=models.CASCADE, null=True, blank=True)
+    experience = models.OneToOneField(Experience, on_delete=models.CASCADE, null=True, blank=True)
+    education = models.OneToOneField(Education, on_delete=models.CASCADE, null=True, blank=True)
+    certification = models.OneToOneField(Certification, on_delete=models.CASCADE, null=True, blank=True)
     def __str__(self):
         return f'{self.user.username}\'s Profile'
     

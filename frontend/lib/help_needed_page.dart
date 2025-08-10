@@ -24,10 +24,9 @@ class HelpNeededPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2e3a59),
+      backgroundColor: const Color(0xFFE7E5E5), //change the color
       body: Column(
         children: [
-          // 🔴 Top Bar
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
@@ -37,7 +36,7 @@ class HelpNeededPage extends StatelessWidget {
                   const Text(
                     "Emergency Feed",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -49,13 +48,14 @@ class HelpNeededPage extends StatelessWidget {
                         MaterialPageRoute(builder: (_) => AddHelpPostForm()),
                       );
                     },
-                    icon: const Icon(Icons.add, size: 18, color: Colors.white),
+                    icon: const Icon(Icons.add,
+                        size: 18, color: Colors.white), //change the color
                     label: const Text(
                       "Post",
-                      style: TextStyle(color: Colors.white),
+                      style: TextStyle(color: Colors.white), //change the color
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
+                      backgroundColor: Color(0xFFE53935), //change the color
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 10,
@@ -70,7 +70,7 @@ class HelpNeededPage extends StatelessWidget {
             ),
           ),
 
-          const Divider(color: Colors.white10, thickness: 1),
+          const Divider(color: Colors.black, thickness: 1), //change the color
 
           // 📰 Feed List
           Expanded(
@@ -92,7 +92,7 @@ class HelpNeededPage extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: const Color(0xFF2E3547),
+      color: Colors.white, //change the color
       elevation: 6,
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -109,13 +109,14 @@ class HelpNeededPage extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black87, //change the color
                     ),
                   ),
                 ),
                 Text(
                   post['time'],
-                  style: const TextStyle(color: Colors.white38, fontSize: 12),
+                  style: const TextStyle(
+                      color: Colors.black, fontSize: 12), //change the color
                 ),
               ],
             ),
@@ -124,11 +125,11 @@ class HelpNeededPage extends StatelessWidget {
             // 📝 Description
             Text(
               post['description'],
-              style: const TextStyle(color: Colors.white70, fontSize: 15),
+              style: const TextStyle(
+                  color: Colors.black, fontSize: 15), //change the color
             ),
             const SizedBox(height: 16),
 
-            // 💬 Help Badge + 🔽 View Button
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -138,32 +139,29 @@ class HelpNeededPage extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent.withOpacity(0.2),
+                    color: Colors.grey[300], //change the color
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Text(
                     "🚨 Need Help",
                     style: TextStyle(
-                      color: Colors.blueAccent,
+                      color: Colors.blueAccent, //change the color
                       fontWeight: FontWeight.w500,
                       fontSize: 14,
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(
-                    Icons.arrow_forward_ios,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.arrow_forward_ios,
+                      color: Colors.grey), //change the color
                   onPressed: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder:
-                            (_) => PostDetailPage(
-                              title: post['title'],
-                              description: post['description'],
-                            ),
+                        builder: (_) => PostDetailPage(
+                          title: post['title'],
+                          description: post['description'],
+                        ),
                       ),
                     );
                   },

@@ -22,13 +22,12 @@ class _ServiceListPageState extends State<ServiceListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredList =
-        mockList
-            .where(
-              (item) =>
-                  item['location']!.toLowerCase().contains(query.toLowerCase()),
-            )
-            .toList();
+    final filteredList = mockList
+        .where(
+          (item) =>
+              item['location']!.toLowerCase().contains(query.toLowerCase()),
+        )
+        .toList();
 
     return Scaffold(
       backgroundColor: Color(0xFF2e3a59),

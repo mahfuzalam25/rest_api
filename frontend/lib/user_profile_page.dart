@@ -13,48 +13,83 @@ class UserProfilePage extends StatefulWidget {
 }
 
 class _UserProfilePageState extends State<UserProfilePage> {
-  String name = "Sourav Das Gupta";
-  String bio = "I am a volunteer";
-  int worksCompleted = 15;
-  int responses = 10;
-  String phoneNumber = "017XXXXXXXX";
+  bool isLoading = true;
 
-  Map<String, String> location = {
-    "Home Address": "Sylhet Sadar",
-    "Office Address": "Leading University",
-    "City": "Sylhet",
-    "Town": "Ambarkhana",
-    "District": "Sylhet",
-    "Division": "Sylhet",
-  };
+  String name = "";
+  String bio = "";
+  String profileImage = "";
+  String phoneNumber = "";
+  String bloodGroup = "";
 
-  Map<String, String> experience = {
-    "Title": "Emergency Volunteer",
-    "Date": "Sep, 2022 - Present",
-    "Duration": "2 years, 9 months",
-    "Company": "Local Emergency Team",
-    "Description": "Helped in emergency situations.",
-    "Location": "Sylhet, Bangladesh",
-  };
+  int worksCompleted = 15; // Static placeholder
+  int responses = 10; // Static placeholder
 
-  Map<String, String> education = {
-    "Institution": "Leading University",
-    "Date": "2021 - 2025",
-    "Duration": "4 years",
-    "Field": "CSE",
-    "Location": "Bangladesh",
-  };
+  Map<String, String> location = {};
+  Map<String, String> experience = {};
+  Map<String, String> education = {};
+  Map<String, String> qualification = {};
 
-  Map<String, String> qualification = {
-    "Title": "First Aid Certified",
-    "Year": "2024",
-    "Description": "Trained by Red Cross for first aid.",
-  };
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    final profileData = await ApiService.getUserProfile();
+
+    if (profileData != null) {
+      final profile = profileData['profile'];
+      setState(() {
+        name = "${profileData['first_name']} ${profileData['last_name']}";
+        bio = profile['bio'] ?? "";
+        profileImage = profile['image'] ?? "";
+        phoneNumber = profile['phone'] ?? "";
+        bloodGroup = profile['blood_group'] ?? "";
+
+        location = {
+          "Home Address": profile['location']?['home_address'] ?? "",
+          "Office Address": profile['location']?['office_address'] ?? "",
+          "City": profile['location']?['city'] ?? "",
+          "District": profile['location']?['district'] ?? "",
+          "Division": profile['location']?['division'] ?? "",
+          "Zip Code": profile['location']?['zip_code'] ?? "",
+        };
+
+        experience = {
+          "Title": profile['experience']?['experience_title'] ?? "",
+          "Duration": profile['experience']?['duration'] ?? "",
+          "Company": profile['experience']?['organization_name'] ?? "",
+          "Location": profile['experience']?['organization_address'] ?? "",
+          "Description": profile['experience']?['description'] ?? "",
+        };
+
+        education = {
+          "Institution": profile['education']?['institution_name'] ?? "",
+          "Duration": profile['education']?['duration'] ?? "",
+          "Field": profile['education']?['department_name'] ?? "",
+          "Location": profile['education']?['institution_address'] ?? "",
+        };
+
+        qualification = {
+          "Title": profile['certification']?['certificate_title'] ?? "",
+          "Year": profile['certification']?['year'] ?? "",
+          "Description": profile['certification']?['description'] ?? "",
+        };
+
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D141B),
+      backgroundColor: const Color(0xFFE7E5E5),
       appBar: AppBar(
         backgroundColor: const Color(0xFFE53935),
         title: const Text("User Profile"),
@@ -76,7 +111,9 @@ class _UserProfilePageState extends State<UserProfilePage> {
                     bio: bio,
                     worksCompleted: worksCompleted,
                     responses: responses,
-                    location: location["Home Address"] ?? "",
+                    phone: phoneNumber,
+                    bloodGroup: bloodGroup,
+                    location: location,
                     experience: experience,
                     education: education,
                     qualification: qualification,
@@ -88,6 +125,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 setState(() {
                   name = result["name"];
                   bio = result["bio"];
+                  bloodGroup = result["bloodGroup"] ?? bloodGroup;
                   location = Map<String, String>.from(result["location"]);
                   experience = Map<String, String>.from(result["experience"]);
                   qualification = Map<String, String>.from(
@@ -100,19 +138,22 @@ class _UserProfilePageState extends State<UserProfilePage> {
         ],
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildProfileStats(),
-            _buildSection("Location", location),
-            _buildSection("Experience", experience),
-            _buildSection("Education", education),
-            _buildSection("Qualifications", qualification),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildHeader(),
+                  _buildProfileStats(),
+                  _buildSection("Blood Group", {"Blood Group": bloodGroup}),
+                  _buildSection("Location", location),
+                  _buildSection("Experience", experience),
+                  _buildSection("Education", education),
+                  _buildSection("Certifications", qualification),
+                  const SizedBox(height: 30),
+                ],
+              ),
+            ),
     );
   }
 
@@ -143,11 +184,12 @@ class _UserProfilePageState extends State<UserProfilePage> {
                 ),
               ],
             ),
-            child: const CircleAvatar(
+            child: CircleAvatar(
               radius: 45,
-              backgroundImage: NetworkImage(
-                "https://randomuser.me/api/portraits/men/32.jpg",
-              ),
+              backgroundImage: profileImage.isNotEmpty
+                  ? NetworkImage(profileImage)
+                  : const AssetImage("assets/default_user.png")
+                      as ImageProvider,
             ),
           ),
           const SizedBox(height: 15),
@@ -161,7 +203,10 @@ class _UserProfilePageState extends State<UserProfilePage> {
           ),
           Text(
             bio,
-            style: const TextStyle(color: Colors.white70, fontSize: 16),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 16,
+            ),
           ),
           const SizedBox(height: 10),
           ElevatedButton.icon(
@@ -193,27 +238,13 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget _buildProfileStats() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              _infoCard(
-                Icons.task_alt,
-                "Works",
-                "$worksCompleted",
-                Colors.greenAccent,
-              ),
-              const SizedBox(width: 10),
-              _infoCard(
-                Icons.warning_amber_rounded,
-                "Responses",
-                "$responses",
-                Colors.redAccent,
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
+          _infoCard(
+              Icons.task_alt, "Works", "$worksCompleted", Colors.greenAccent),
+          const SizedBox(width: 10),
+          _infoCard(Icons.warning_amber_rounded, "Responses", "$responses",
+              Colors.redAccent),
         ],
       ),
     );
@@ -225,9 +256,8 @@ class _UserProfilePageState extends State<UserProfilePage> {
         padding: const EdgeInsets.all(16),
         margin: const EdgeInsets.symmetric(horizontal: 5),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
+          color: Colors.white,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Colors.white10),
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.3),
@@ -243,14 +273,17 @@ class _UserProfilePageState extends State<UserProfilePage> {
             Text(
               value,
               style: const TextStyle(
-                color: Colors.white,
+                color: Colors.black,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
               title,
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
+              style: const TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+              ),
             ),
           ],
         ),
@@ -269,7 +302,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
           const SizedBox(height: 10),
@@ -277,12 +310,11 @@ class _UserProfilePageState extends State<UserProfilePage> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.redAccent.withOpacity(0.05),
+                  color: Colors.redAccent.withOpacity(0.1),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
@@ -297,7 +329,7 @@ class _UserProfilePageState extends State<UserProfilePage> {
                       child: Text(
                         "${e.key}: ${e.value}",
                         style: const TextStyle(
-                          color: Colors.white70,
+                          color: Colors.black,
                           fontSize: 16,
                         ),
                       ),
