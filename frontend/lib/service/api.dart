@@ -260,6 +260,23 @@ class ApiService {
       throw Exception('Failed to load safety guides');
     }
   }
+
+  static Future<List<Map<String, dynamic>>> getEmergencyCalls() async {
+    final url = Uri.parse('$baseUrl/emergencycall/calllist/');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      final List data = json.decode(response.body);
+      return data
+          .map((item) => {
+                'id': item['id'],
+                'station_title': item['station_title'] ?? '',
+                'info': item['info'] ?? []
+              })
+          .toList();
+    } else {
+      throw Exception('Failed to load emergency calls');
+    }
+  }
 }
 
 class SafetyAdvice {

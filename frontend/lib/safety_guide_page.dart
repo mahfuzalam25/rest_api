@@ -21,7 +21,7 @@ class _SafetyGuidePageState extends State<SafetyGuidePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2e3a59),
+      backgroundColor: const Color(0xFFE7E5E5),
       appBar: AppBar(
         backgroundColor: Colors.redAccent,
         elevation: 0,
@@ -37,7 +37,7 @@ class _SafetyGuidePageState extends State<SafetyGuidePage> {
             return Center(
               child: Text(
                 'Error loading guides:\n${snapshot.error}',
-                style: const TextStyle(color: Colors.white),
+                style: const TextStyle(color: Colors.black),
                 textAlign: TextAlign.center,
               ),
             );
@@ -45,7 +45,7 @@ class _SafetyGuidePageState extends State<SafetyGuidePage> {
             return const Center(
               child: Text(
                 'No safety guides found',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: Colors.black),
               ),
             );
           } else {
@@ -74,7 +74,7 @@ class _SafetyGuidePageState extends State<SafetyGuidePage> {
                         color: Colors.white.withOpacity(0.08),
                         borderRadius: BorderRadius.circular(16),
                         border:
-                            Border.all(color: Colors.white.withOpacity(0.2)),
+                            Border.all(color: Colors.black.withOpacity(0.2)),
                       ),
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(
@@ -101,12 +101,12 @@ class _SafetyGuidePageState extends State<SafetyGuidePage> {
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: Colors.black,
                           ),
                         ),
                         trailing: const Icon(
                           Icons.arrow_forward_ios_rounded,
-                          color: Colors.white70,
+                          color: Colors.black,
                           size: 18,
                         ),
                       ),

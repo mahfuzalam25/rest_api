@@ -2,8 +2,6 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Profile, Location, Experience, Education, Certification
 
-
-# -------------------- Nested Serializers --------------------
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
@@ -28,7 +26,6 @@ class CertificationSerializer(serializers.ModelSerializer):
         fields = ['certificate_title', 'year', 'description']
 
 
-# -------------------- Profile Serializer --------------------
 class ProfileSerializer(serializers.ModelSerializer):
     user = serializers.HyperlinkedRelatedField(read_only=True, view_name='user-detail')
     location = LocationSerializer()
@@ -64,7 +61,6 @@ class ProfileSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-# -------------------- User Serializer --------------------
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(required=False)  # Now writable
     old_password = serializers.CharField(write_only=True, required=False)

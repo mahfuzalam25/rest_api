@@ -41,7 +41,7 @@ class _AppDrawerState extends State<AppDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      backgroundColor: const Color(0xFF2e3a59),
+      backgroundColor: Colors.white,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
@@ -71,10 +71,10 @@ class _AppDrawerState extends State<AppDrawer> {
                 MaterialPageRoute(builder: (_) => const UserProfilePage()));
           }),
           ListTile(
-            leading: const Icon(Icons.leaderboard, color: Colors.white),
+            leading: const Icon(Icons.leaderboard, color: Colors.black),
             title: const Text(
               'Leaderboard',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.black),
             ),
             onTap: () {
               Navigator.push(
@@ -83,8 +83,7 @@ class _AppDrawerState extends State<AppDrawer> {
               );
             },
           ),
-          const Divider(color: Colors.white24, indent: 16, endIndent: 16),
-          _buildLabel("Settings"),
+          const Divider(color: Colors.black, indent: 16, endIndent: 16),
           _buildNavItem(Icons.settings, 'Settings', () {
             Navigator.push(
                 context, MaterialPageRoute(builder: (_) => SettingsPage()));
@@ -110,8 +109,8 @@ class _AppDrawerState extends State<AppDrawer> {
 
   Widget _buildNavItem(IconData icon, String title, VoidCallback onTap) =>
       ListTile(
-        leading: Icon(icon, color: Colors.white),
-        title: Text(title, style: const TextStyle(color: Colors.white)),
+        leading: Icon(icon, color: Colors.black),
+        title: Text(title, style: const TextStyle(color: Colors.black)),
         onTap: onTap,
       );
 }
